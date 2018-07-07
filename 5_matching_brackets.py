@@ -8,39 +8,13 @@ ONE = '1'
 TWO = '2'
 
 
-def nested_depth_and_point_of_occr(stream):
-
-    N = len(stream)
-    cur_max_len = 0
-    cur_start_loc = 0
-
-    cur_len = 0
-    change_start_loc = False
-
-    for idx in range(N):
-
-        if stream[idx] == ONE:
-            cur_len += 1
-
-            if cur_len > cur_max_len:
-                change_start_loc = True
-                cur_max_len = cur_len
-
-        if stream[idx] == TWO:
-            if change_start_loc is True:
-                cur_start_loc = idx
-
-            cur_len = 0
-            change_start_loc = False
-
-    return cur_max_len, cur_start_loc
-
-
-def len_of_max_sequence_and_point_of_occr(stream):
+def logic(stream):
 
     N = len(stream)
     list_of_braces_meta = []
 
+    deepest_loc = 0
+    deepest_known = 0
     longest_known = 0
     longest_known_loc = 0
 
@@ -53,6 +27,12 @@ def len_of_max_sequence_and_point_of_occr(stream):
                 "containing-length": 0
             }
             list_of_braces_meta.append(bracket_object)
+
+        if len(list_of_braces_meta) > deepest_known:
+            # At any point, longest list of open bracket_objects will give
+            # right depth, and their location of occurance is obvious
+            deepest_known = len(list_of_braces_meta)
+            deepest_loc = list_of_braces_meta[-1]["location"]
 
         if stream[idx] == TWO:
             # This made a pair, pop this open brace from queue
@@ -69,7 +49,7 @@ def len_of_max_sequence_and_point_of_occr(stream):
             if len(list_of_braces_meta) >= 1:
                 list_of_braces_meta[-1]["containing-length"] += most_recent_bracket_pair["containing-length"]
 
-    return longest_known, longest_known_loc + 1
+    return deepest_known, deepest_loc + 1, longest_known, longest_known_loc + 1
 
 
 if __name__ == "__main__":
@@ -77,8 +57,10 @@ if __name__ == "__main__":
     input_stream = raw_input()
     cleaned_stream = ''.join(input_stream.split())
 
-    depth, depth_occured_at = nested_depth_and_point_of_occr(cleaned_stream)
-    longest_enclosure, enc_occured_at = len_of_max_sequence_and_point_of_occr(cleaned_stream)
+    # depth, depth_occured_at = part_1(cleaned_stream)
+    depth, depth_occured_at, longest_enclosure, enc_occured_at = logic(
+        cleaned_stream
+    )
 
     print('{} {} {} {}'.format(
         depth, depth_occured_at, longest_enclosure, enc_occured_at
