@@ -22,8 +22,8 @@ def minimum_time_spent(exams, W, V):
     for s, e in exams:
         exams_by_duration[e - s].append([s, e])  # Appended in increasing order of s
 
-    W.sort()
-    V.sort()
+    product_WV = product(W, V)
+    product_WV = sorted(product_WV, key=lambda exam: exam[1] - exam[0])
 
     def next_smallest_exam_set(sorted_known_dts, current_dt):
         these_exams = []
@@ -33,7 +33,7 @@ def minimum_time_spent(exams, W, V):
 
         return these_exams
 
-    for w, v in product(W, V):
+    for w, v in product_WV:
         dt = v - w
 
         if dt < 0:  # Such combinations are not commutable
@@ -49,7 +49,7 @@ def minimum_time_spent(exams, W, V):
 
         # If exits without returing, try next dt combo
         for s, e in in_range_exams:
-            if s + dt <= v:
+            if s >= w and e <= v:  # Make sure the exam fits with-in <dt>
                 return dt + 1
 
 
