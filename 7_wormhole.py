@@ -15,12 +15,53 @@ W = list(map(int, input().split()))
 V = list(map(int, input().split()))
 
 
+class BinaryTable(object):
+
+    def __init__(self):
+        rows = 10**5  # Worst case length
+        cols = 10**5  # Worst case length
+        self.table = []
+        for i in range(rows):
+            self.table.append([0] * cols)
+
+        self.S = dict()
+        selt.dT = dict()
+        self.s_idx = 0
+        self.dt_idx = 0
+
+    def set(self, s, dt):
+        self.S[s] = self.s_idx
+        self.dT[dt] = self.dt_idx
+
+        self.table[self.s_idx, self.dt_idx] = 1
+
+        self.s_idx += 1
+        self.dt_idx += 1
+
+    def get(self, s, dt):
+        if s not in self.S:
+            return 0
+
+        if dt not in self.dT:
+            return 0
+
+        return self.data[self.S[s], self.dT[dt]]
+
+    @property
+    def get_all_start_times(self):
+        return self.S.keys()
+
+    @property
+    def get_all_dts(self):
+        return self.dT.keys()
+
+
 def minimum_time_spent(exams, W, V):
 
-    exams = sorted(exams, key=lambda i_: i_[0])
-    exams_by_duration = defaultdict(list)
+    # exams = sorted(exams, key=lambda i_: i_[0])
+    bt = BinaryTable()
     for s, e in exams:
-        exams_by_duration[e - s].append([s, e])  # Appended in increasing order of s
+        bt.set(s=s, dt=e-s)
 
     product_WV = product(W, V)
     product_WV = sorted(product_WV, key=lambda exam: exam[1] - exam[0])
@@ -41,16 +82,7 @@ def minimum_time_spent(exams, W, V):
 
         # There maybe some exams that could fit in this duration,
         # check if their start & end time lies with-in <dt>
-        existing_dts_ascending = sorted(list(exams_by_duration.keys()))
-        in_range_exams = next_smallest_exam_set(
-            sorted_known_dts=existing_dts_ascending,
-            current_dt=dt
-        )
-
-        # If exits without returing, try next dt combo
-        for s, e in in_range_exams:
-            if s >= w and e <= v:  # Make sure the exam fits with-in <dt>
-                return dt + 1
+        # Get a list of exams such that w <= s < w + dt && t <= dt
 
 
 if __name__ == "__main__":
