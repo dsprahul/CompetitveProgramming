@@ -18,42 +18,49 @@ V = list(map(int, input().split()))
 class BinaryTable(object):
 
     def __init__(self):
-        rows = 10**5  # Worst case length
-        cols = 10**5  # Worst case length
-        self.table = []
-        for i in range(rows):
-            self.table.append([0] * cols)
-
-        self.S = dict()
-        selt.dT = dict()
-        self.s_idx = 0
-        self.dt_idx = 0
+        self.table = defaultdict(dict)
 
     def set(self, s, dt):
-        self.S[s] = self.s_idx
-        self.dT[dt] = self.dt_idx
-
-        self.table[self.s_idx, self.dt_idx] = 1
-
-        self.s_idx += 1
-        self.dt_idx += 1
+        self.table[s].update({dt: 1})
 
     def get(self, s, dt):
-        if s not in self.S:
+        if self.table.get(s) is None:
             return 0
 
-        if dt not in self.dT:
+        if self.table[s].get(dt) is None:
             return 0
 
-        return self.data[self.S[s], self.dT[dt]]
+        return self.table[s][dt]
+
+    def load_all_start_times(self):
+        self.start_times = self.table.keys()
+
+    def load_all_dts(self):
+        self.dts = []
+        for s in self.start_times:
+            self.dts += self.table[s].keys()
 
     @property
     def get_all_start_times(self):
-        return self.S.keys()
+        try:
+            type(self.start_times)
+            type(self.dts)
+        except AttributeError:
+            self.load_all_start_times()
+            self.load_all_dts()
+
+        return self.start_times
 
     @property
     def get_all_dts(self):
-        return self.dT.keys()
+        try:
+            type(self.start_times)
+            type(self.dts)
+        except AttributeError:
+            self.load_all_start_times()
+            self.load_all_dts()
+
+        return self.dts
 
 
 def minimum_time_spent(exams, W, V):
@@ -74,15 +81,28 @@ def minimum_time_spent(exams, W, V):
 
         return these_exams
 
+    def in_range_starts(sorted_s, start_s, end_s):
+        return [e for e in sorted_s if start_s >= e <= end_s]
+
+    def in_range_dts(sorted_dt, max_dt):
+        return [e for e in sorted_dt if e <= max_dt]
+
     for w, v in product_WV:
         dt = v - w
 
         if dt < 0:  # Such combinations are not commutable
             continue
 
+        known_s = sorted(bt.get_all_start_times)
+        known_dt = sorted(bt.get_all_dts)
         # There maybe some exams that could fit in this duration,
         # check if their start & end time lies with-in <dt>
         # Get a list of exams such that w <= s < w + dt && t <= dt
+        starts = in_range_starts(known_s, start_s=w, end_s=w + dt)
+        dts = in_range_dts(known_dt, max_dt=dt)
+        for s, dt2 in product(starts, dts):
+            if bt.get(s, dt2) == 1:
+                return dt + 1
 
 
 if __name__ == "__main__":
