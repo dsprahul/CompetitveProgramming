@@ -6,17 +6,22 @@
 class Solution:
     def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
         
-        if head is None or head.next is None:
-            return head
+        def recCall(head, tailEnd):
         
-        prev, curr, fast = head, head.next, head.next.next
-        head.next = None
-        while fast:
+            if head is None or head.next is None:
+                return None, head
+
+            pointer, tailEnd = recCall(head.next, tailEnd)
             
-            curr.next = prev
-            
-            prev, curr, fast = curr, fast, fast.next
-            
-        curr.next = prev
+            tail = pointer or tailEnd
+            tail.next = head
+            head.next = None
         
-        return curr
+            return tail.next, tailEnd
+        
+        _, tailEnd = recCall(head, None)
+        
+        return tailEnd
+        
+        
+        
