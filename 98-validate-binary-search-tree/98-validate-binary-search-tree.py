@@ -8,23 +8,24 @@ class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
         
         answer = True
+        prev = -float("inf")
         
-        def inOrder(root, prev, ans):
-
-            if not root:
-                return prev, ans
+        def inOrder(root):
             
-            prev, ans = inOrder(root.left, prev, ans)
+            nonlocal prev
+            nonlocal answer
+            if not root:
+                return
+            
+            inOrder(root.left)
                         
             if not (prev < root.val):
-                ans *= False
+                answer = False
             
             prev = root.val
-            prev, ans = inOrder(root.right, prev, ans)
+            inOrder(root.right)
             
-            return prev, ans
-            
-        _, answer = inOrder(root, -float("inf"), answer)
+        inOrder(root)
         
         return answer
             
